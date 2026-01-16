@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    # Only allow the repository owner to trigger this workflow
+    if: github.actor == '50BytesOfJohn' || github.event_name == 'push'
+    # Use npm environment for additional protection
+    # Configure this environment in GitHub repo settings with required reviewers
+    environment: npm
+    permissions:
+      contents: write # For creating releases and pushing version commits
+      pull-requests: write # For creating version PRs
+      id-token: write # Required for npm trusted publishing (OIDC)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Setup Node.js for npm publish
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Format check
+        run: bun run format:check
+
+      - name: Type check
+        run: bun run typecheck
+
+      - name: Run tests
+        run: bun run test
+
+      - name: Build
+        run: bun run build
+
+      - name: Create Release Pull Request or Publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: npm publish --access public
+          version: bun run version
+          commit: "chore: version packages"
+          title: "chore: version packages"
+          createGithubReleases: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Using npm trusted publishing (OIDC) - no NPM_TOKEN needed
+          # Make sure to configure trusted publishing on npmjs.com:
+          # 1. Go to package settings on npmjs.com
+          # 2. Select "Trusted Publishers" -> "GitHub Actions"
+          # 3. Set: Organization: mynth-io, Repository: sdk, Workflow: release.yml
