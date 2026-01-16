@@ -1,0 +1,318 @@
+/**
+ * Type definitions for the Mynth SDK.
+ * Import as `import type { MynthSDKTypes } from "@mynthio/sdk"`.
+ */
+export namespace MynthSDKTypes {
+  /** Status of a generation task */
+  export type TaskStatus = "pending" | "completed" | "failed";
+
+  /** Type of task (currently only "image" is supported) */
+  export type TaskType = "image";
+
+  /** Full task data returned from the API */
+  export type TaskData = {
+    /** Unique task identifier */
+    id: string;
+    /** Current status of the task */
+    status: TaskStatus;
+    /** Type of task */
+    type: TaskType;
+    /** ID of the API key used (null for public access) */
+    apiKeyId: string | null;
+    /** ID of the user who created the task */
+    userId: string;
+    /** Total cost in string format (null if not yet calculated) */
+    cost: string | null;
+    /** Generation result (null if not completed) */
+    result: ImageResult | null;
+    /** Original generation request (null if not available) */
+    request: ImageGenerationRequest;
+    /** ISO 8601 timestamp of creation */
+    createdAt: string;
+    /** ISO 8601 timestamp of last update */
+    updatedAt: string;
+  };
+
+  /** Available model identifiers */
+  export type ImageGenerationModelId =
+    | "black-forest-labs/flux.1-dev"
+    | "black-forest-labs/flux-1-schnell"
+    | "black-forest-labs/flux.2-dev"
+    | "black-forest-labs/flux.2-klein-4b"
+    | "google/gemini-3-pro-image-preview"
+    | "tongyi-mai/z-image-turbo"
+    | "john6666/bismuth-illustrious-mix"
+    | "wan/wan2.6-image"
+    | "xai/grok-imagine-image";
+
+  /** Model to use for generation ("auto" lets the system choose) */
+  export type ImageGenerationModel = ImageGenerationModelId | "auto";
+
+  /** Prompt enhancement mode for structured prompts */
+  export type ImageGenerationRequestEnhance = false | "prefer_magic" | "prefer_native";
+
+  /** Structured prompt with positive and optional negative text */
+  export type PromptStructured = {
+    /** Main prompt describing what to generate */
+    positive: string;
+    /** Elements to exclude from the generation */
+    negative?: string;
+    /** Prompt enhancement mode */
+    enhance: ImageGenerationRequestEnhance;
+  };
+
+  export type GenerateImageOptionsIn = {
+    prompt: string | PromptStructured;
+  };
+
+  export type GenerateImageOptions = {
+    prompt: PromptStructured;
+  };
+
+  /**
+   * Prompt input for image generation.
+   * Can be a simple string or structured with positive/negative prompts.
+   */
+  export type ImageGenerationRequestPrompt = GenerateImageOptionsIn["prompt"];
+
+  /** Access configuration for the generated task */
+  export type ImageGenerationRequestAccess = {
+    /** Public access token configuration */
+    pat: {
+      /** Generate a public access token for client-side polling */
+      enabled?: boolean;
+    };
+  };
+
+  /** Output image format */
+  export type ImageGenerationRequestOutputFormat = "png" | "jpg" | "webp";
+
+  /** Output configuration for generated images */
+  export type ImageGenerationRequestOutput = {
+    /** Image format (default: "webp") */
+    format?: ImageGenerationRequestOutputFormat;
+    /** Quality 0-100 (default: 80) */
+    quality?: number;
+  };
+
+  /** Custom webhook endpoint configuration */
+  export type ImageGenerationRequestCustomWebhook = {
+    /** URL to receive webhook notifications */
+    url: string;
+  };
+
+  /** Webhook configuration */
+  export type ImageGenerationRequestWebhook = {
+    /** Enable/disable webhooks (disabling overrides dashboard settings) */
+    enabled?: boolean;
+    /** Additional custom webhook endpoints */
+    custom?: ImageGenerationRequestCustomWebhook[];
+  };
+
+  /** Custom content rating level definition */
+  export type ImageGenerationRequestContentRatingLevel<T extends string = string> = {
+    /** Level identifier returned in the result */
+    value: T;
+    /** Human-readable description for the AI classifier */
+    description: string;
+  };
+
+  /** Content rating configuration */
+  export type ImageGenerationRequestContentRating = {
+    /** Enable content rating classification */
+    enabled?: boolean;
+    /** Custom rating levels (uses default sfw/nsfw if not provided) */
+    levels?: readonly ImageGenerationRequestContentRatingLevel[];
+  };
+
+  /** Available shorthand size presets */
+  export type ImageGenerationRequestSizePreset = "instagram" | "square" | "portrait" | "landscape";
+
+  /** Scale used by aspect ratio size mode */
+  export type ImageGenerationRequestSizeScale = "1k" | "2k" | "4k" | "8k";
+
+  /** Aspect ratio string (for example: "16:9") */
+  export type ImageGenerationRequestAspectRatio = string;
+
+  /** Structured resolution size configuration */
+  export type ImageGenerationRequestSizeResolution = {
+    type: "resolution";
+    width: number;
+    height: number;
+    mode?: "strict" | "preset" | "aligned";
+  };
+
+  /** Structured aspect ratio size configuration */
+  export type ImageGenerationRequestSizeAspectRatio = {
+    type: "aspect_ratio";
+    aspectRatio: ImageGenerationRequestAspectRatio;
+    scale: ImageGenerationRequestSizeScale;
+  };
+
+  /** Structured auto size configuration */
+  export type ImageGenerationRequestSizeAuto = {
+    type: "auto";
+    prefer: "mynth" | "native";
+  };
+
+  /** Image input source */
+  export type ImageGenerationRequestInputSource = {
+    type: "url";
+    url: string;
+  };
+
+  /** Supported input roles */
+  export type ImageGenerationRequestInputRole = "context" | "init" | "reference";
+
+  /** Structured image input */
+  export type ImageGenerationRequestInput = {
+    type: "image";
+    role: ImageGenerationRequestInputRole;
+    source: ImageGenerationRequestInputSource;
+  };
+
+  /**
+   * Image size specification.
+   * Can be a preset name, compact resolution string, or structured size object.
+   */
+  export type ImageGenerationRequestSize =
+    | ImageGenerationRequestSizePreset
+    | `${number}x${number}`
+    | ImageGenerationRequestSizeResolution
+    | ImageGenerationRequestSizeAspectRatio
+    | ImageGenerationRequestSizeAuto
+    | "auto";
+
+  /**
+   * Image generation request parameters.
+   */
+  export type ImageGenerationRequest = {
+    /** Text prompt or structured prompt object */
+    prompt: ImageGenerationRequestPrompt;
+    /** Model to use (default: "auto") */
+    model?: ImageGenerationModel;
+    /** Image size/dimensions (default: "auto") */
+    size?: ImageGenerationRequestSize;
+    /** Number of images to generate (default: 1) */
+    count?: number;
+    /** Output format and quality settings */
+    output?: ImageGenerationRequestOutput;
+    /** Public access token configuration */
+    access?: ImageGenerationRequestAccess;
+    /** Webhook notification settings */
+    webhook?: ImageGenerationRequestWebhook;
+    /** Content rating classification settings */
+    content_rating?: ImageGenerationRequestContentRating;
+    /** Optional input images as URL shortcuts or structured objects */
+    inputs?: (string | ImageGenerationRequestInput)[];
+    /** Custom metadata to attach (returned in results and webhooks). Max 2KB. */
+    metadata?: Record<string, unknown>;
+  };
+
+  /** Default content rating levels */
+  export type ImageResultContentRatingDefaultLevel = "sfw" | "nsfw";
+
+  /** Content rating result */
+  export type ImageResultContentRating =
+    | {
+        mode: "default";
+        level: ImageResultContentRatingDefaultLevel;
+      }
+    | {
+        mode: "custom";
+        level: string;
+      };
+
+  /** Successfully generated image */
+  export type ImageResultImageSuccess = {
+    status: "succeeded";
+    /** Image ID */
+    id: string;
+    /** CDN URL of the generated image */
+    url: string;
+    /** Resolved output image size (for example: "1024x1024") */
+    size?: `${number}x${number}`;
+    /** Provider that generated the image */
+    provider: string;
+    /** Cost for this image in string format */
+    cost: string;
+    /** Content rating if classification was enabled */
+    content_rating?: ImageResultContentRating;
+  };
+
+  /** Failed image generation */
+  export type ImageResultImageFailure = {
+    status: "failed";
+    /** Error message describing the failure */
+    error: string;
+  };
+
+  /** Individual image result (success or failure) */
+  export type ImageResultImage = ImageResultImageSuccess | ImageResultImageFailure;
+
+  /** Cost breakdown for the generation */
+  export type ImageResultCost = {
+    /** Cost of image generation */
+    images: string;
+    /** Total cost including all fees */
+    total: string;
+    /** Platform fee */
+    fee: string;
+  };
+
+  /** Auto size resolution info (when size was determined automatically) */
+  export type ImageResultSizeAuto = {
+    /** Source that determined the size */
+    source: "native" | "mynth";
+    /** Resolved size value (e.g. "1024x1024") */
+    value?: string;
+  };
+
+  /** Prompt enhancement info (when prompt was enhanced) */
+  export type ImageResultPromptEnhance = {
+    /** Source that performed the enhancement */
+    source: "native" | "mynth";
+    /** Enhanced positive prompt */
+    positive?: string;
+    /** Enhanced negative prompt */
+    negative?: string;
+  };
+
+  /** Complete generation result */
+  export type ImageResult = {
+    /** Array of generated images (may include failures) */
+    images: ImageResultImage[];
+    /** Cost breakdown */
+    cost: ImageResultCost;
+    /** Model that was used */
+    model: ImageGenerationModelId;
+    /** Auto size resolution info (present when size was determined automatically) */
+    size_auto?: ImageResultSizeAuto;
+    /** Prompt enhancement info (present when prompt was enhanced) */
+    prompt_enhance?: ImageResultPromptEnhance;
+  };
+
+  /**
+   * Webhook payload for task completion
+   */
+  export type WebhookTaskImageCompletedPayload = {
+    task: { id: string };
+    event: "task.image.completed";
+    result: ImageResult;
+    request: ImageGenerationRequest;
+  };
+
+  /**
+   * Webhook payload for task failure
+   */
+  export type WebhookTaskImageFailedPayload = {
+    task: { id: string };
+    event: "task.image.failed";
+    request: ImageGenerationRequest;
+  };
+
+  /**
+   * Webhook payload union
+   */
+  export type WebhookPayload = WebhookTaskImageCompletedPayload | WebhookTaskImageFailedPayload;
+}

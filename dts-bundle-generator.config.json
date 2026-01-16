@@ -1,0 +1,17 @@
+{
+  "compilationOptions": {
+    "preferredConfigPath": "./tsconfig.dts.json"
+  },
+  "entries": [
+    {
+      "filePath": "./src/index.ts",
+      "outFile": "./dist/index.d.ts",
+      "noCheck": true
+    },
+    {
+      "filePath": "./src/convex/index.ts",
+      "outFile": "./dist/convex/index.d.ts",
+      "noCheck": true
+    }
+  ]
+}
