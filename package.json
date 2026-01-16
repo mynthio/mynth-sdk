@@ -42,7 +42,8 @@
     "build:js": "bun build ./src/index.ts ./src/convex/index.ts --outdir ./dist --format esm --splitting --target bun --minify --packages external",
     "build:types": "tsc --emitDeclarationOnly",
     "prepublishOnly": "bun run build",
-    "test": "bun test",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "oxlint -c .oxlintrc.json .",
     "lint:fix": "oxlint -c .oxlintrc.json --fix .",
     "format": "oxfmt --write",
@@ -60,7 +61,8 @@
     "oxfmt": "^0.24.0",
     "oxlint": "^1.39.0",
     "tsx": "^4.21.0",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "^4.0.17"
   },
   "peerDependencies": {
     "convex": "^1.27.3"

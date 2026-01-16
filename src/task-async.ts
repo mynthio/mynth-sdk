@@ -1,4 +1,3 @@
-/* eslint-disable unicorn/no-thenable -- Intentionally thenable class for await support */
 import type { MynthClient } from "./client";
 import { API_URL, TASK_STATUS_PATH } from "./constants";
 import { Task } from "./task";
@@ -53,19 +52,12 @@ export class TaskAsync {
   }
 
   public async toTask(): Promise<Task> {
-    return this.then();
-  }
-
-  then<TResult1 = Task, TResult2 = never>(
-    onfulfilled?: ((value: Task) => TResult1 | PromiseLike<TResult1>) | null,
-    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
-  ): Promise<TResult1 | TResult2> {
-    // Lazy init - only start polling when awaited
+    // Lazy init - only start polling when explicitly requested
     if (!this._completionPromise) {
       this._completionPromise = this.pollUntilCompleted();
     }
 
-    return this._completionPromise.then(onfulfilled, onrejected);
+    return this._completionPromise;
   }
 
   private async pollUntilCompleted(): Promise<Task> {
