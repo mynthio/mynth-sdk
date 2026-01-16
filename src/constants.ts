@@ -4,8 +4,6 @@ export const GENERATE_IMAGE_PATH = "/image/generate";
 export const TASK_PATH = "/tasks";
 export const TASK_STATUS_PATH = (id: string) => `${TASK_PATH}/${id}/status`;
 
-export const GENERATE_IMAGE_URL = `${API_URL}${GENERATE_IMAGE_PATH}`;
-
 export const AVAILABLE_MODELS = [
   {
     id: "black-forest-labs/flux.1-dev",

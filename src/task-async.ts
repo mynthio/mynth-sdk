@@ -122,7 +122,7 @@ export class TaskAsync {
     try {
       const response = await this.client.get<{
         status: MynthSDKTypes.TaskStatus;
-      }>(`${API_URL}${TASK_STATUS_PATH(this.id)}`, {
+      }>(TASK_STATUS_PATH(this.id), {
         accessToken,
       });
 

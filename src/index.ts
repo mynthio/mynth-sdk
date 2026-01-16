@@ -1,5 +1,5 @@
 import { MynthClient } from "./client";
-import { AVAILABLE_MODELS, GENERATE_IMAGE_URL } from "./constants";
+import { AVAILABLE_MODELS, GENERATE_IMAGE_PATH } from "./constants";
 import type { Task } from "./task";
 import {
   TaskAsync,
@@ -17,8 +17,8 @@ type GenerateOptions = {
 class Mynth {
   private readonly client: MynthClient;
 
-  constructor(options: { apiKey: string }) {
-    this.client = new MynthClient({ apiKey: options.apiKey });
+  constructor(options: { apiKey: string; baseUrl?: string }) {
+    this.client = new MynthClient({ apiKey: options.apiKey, baseUrl: options.baseUrl });
   }
 
   // Overload signatures
@@ -44,7 +44,7 @@ class Mynth {
       access?: {
         publicAccessToken: string;
       };
-    }>(GENERATE_IMAGE_URL, request);
+    }>(GENERATE_IMAGE_PATH, request);
 
     const taskAsync = new TaskAsync(json.taskId, {
       client: this.client,
