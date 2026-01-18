@@ -86,14 +86,14 @@ export namespace MynthSDKTypes {
     custom?: ImageGenerationRequestCustomWebhook[];
   };
 
-  export type ImageGenerationRequestContentRatingLevel = {
-    value: string;
+  export type ImageGenerationRequestContentRatingLevel<T extends string = string> = {
+    value: T;
     description: string;
   };
 
   export type ImageGenerationRequestContentRating = {
     enabled?: boolean;
-    levels?: ImageGenerationRequestContentRatingLevel[];
+    levels?: readonly ImageGenerationRequestContentRatingLevel[];
   };
 
   export type ImageGenerationRequestSize =

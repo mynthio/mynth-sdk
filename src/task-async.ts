@@ -43,14 +43,17 @@ type FetchStatusResult =
   | { ok: true; status: MynthSDKTypes.TaskStatus }
   | { ok: false; unauthorized: boolean; retryable: boolean; error?: Error };
 
-export class TaskAsync {
+export class TaskAsync<
+  MetadataT = Record<string, string | number | boolean> | undefined,
+  ContentRatingT = MynthSDKTypes.ImageResultContentRating | undefined,
+> {
   public readonly id: string;
 
   private readonly client: MynthClient;
 
   private readonly access: { pat?: string };
 
-  private _completionPromise: Promise<Task> | null = null;
+  private _completionPromise: Promise<Task<MetadataT, ContentRatingT>> | null = null;
 
   constructor(id: string, options: { client: MynthClient; pat?: string }) {
     this.id = id;
@@ -63,7 +66,7 @@ export class TaskAsync {
     return this.id;
   }
 
-  public async toTask(): Promise<Task> {
+  public async toTask(): Promise<Task<MetadataT, ContentRatingT>> {
     // Lazy init - only start polling when explicitly requested
     if (!this._completionPromise) {
       this._completionPromise = this.pollUntilCompleted();
@@ -72,7 +75,7 @@ export class TaskAsync {
     return this._completionPromise;
   }
 
-  private async pollUntilCompleted(): Promise<Task> {
+  private async pollUntilCompleted(): Promise<Task<MetadataT, ContentRatingT>> {
     const startTime = Date.now();
     let retryCount = 0;
     let useApiKeyFallback = false;

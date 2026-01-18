@@ -12,6 +12,11 @@ const taskAsync = await mynth.generate(
       magic: false,
     },
     model: "black-forest-labs/flux-1-schnell",
+    metadata: {
+      userId: "user123",
+      requestId: "req456",
+      tagCount: 2,
+    },
   },
   { mode: "async" }
 );
@@ -23,4 +28,3 @@ const task = await taskAsync.toTask();
 console.log(task.id, task);
 
 console.log(task.getImages());
-console.log(task.getMetadata());

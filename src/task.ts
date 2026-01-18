@@ -1,6 +1,23 @@
 import type { MynthSDKTypes } from "./types";
 
-export class Task {
+// Typed image result types based on content rating configuration
+type TypedImageResultImageSuccess<ContentRatingT> = Omit<
+  MynthSDKTypes.ImageResultImageSuccess,
+  "content_rating"
+> & {
+  content_rating?: ContentRatingT;
+};
+
+type TypedImageResultImageFailure = MynthSDKTypes.ImageResultImageFailure;
+
+type TypedImageResultImage<ContentRatingT> =
+  | TypedImageResultImageSuccess<ContentRatingT>
+  | TypedImageResultImageFailure;
+
+export class Task<
+  MetadataT = Record<string, string | number | boolean> | undefined,
+  ContentRatingT = MynthSDKTypes.ImageResultContentRating | undefined,
+> {
   public readonly data: MynthSDKTypes.TaskData;
 
   constructor(data: MynthSDKTypes.TaskData) {
@@ -11,25 +28,27 @@ export class Task {
     return this.data.id;
   }
 
-  getImages(options: { includeFailed: true }): MynthSDKTypes.ImageResultImage[];
+  getImages(options: {
+    includeFailed: true;
+  }): TypedImageResultImage<ContentRatingT>[];
   getImages(options?: {
     includeFailed?: false;
-  }): MynthSDKTypes.ImageResultImageSuccess[];
+  }): TypedImageResultImageSuccess<ContentRatingT>[];
   getImages(
     options: { includeFailed?: boolean } = {}
   ):
-    | MynthSDKTypes.ImageResultImage[]
-    | MynthSDKTypes.ImageResultImageSuccess[] {
-    if (options.includeFailed) return this.data.result?.images ?? [];
+    | TypedImageResultImage<ContentRatingT>[]
+    | TypedImageResultImageSuccess<ContentRatingT>[] {
+    if (options.includeFailed)
+      return (this.data.result?.images ??
+        []) as TypedImageResultImage<ContentRatingT>[];
 
-    return (
-      this.data.result?.images.filter(
-        (image) => image.status === "succeeded"
-      ) ?? []
-    );
+    return (this.data.result?.images.filter(
+      (image) => image.status === "succeeded"
+    ) ?? []) as TypedImageResultImageSuccess<ContentRatingT>[];
   }
 
-  getMetadata<MetadataT = unknown>(): MetadataT {
-    return this.data.metadata as MetadataT;
+  getMetadata(): MetadataT {
+    return this.data.metadata?.request?.metadata as MetadataT;
   }
 }
