@@ -2,6 +2,7 @@ export const API_URL = "https://api.mynth.io";
 
 export const GENERATE_IMAGE_PATH = "/image/generate";
 export const TASK_PATH = "/tasks";
+export const TASK_DETAILS_PATH = (id: string) => `${TASK_PATH}/${id}`;
 export const TASK_STATUS_PATH = (id: string) => `${TASK_PATH}/${id}/status`;
 
 export const AVAILABLE_MODELS = [

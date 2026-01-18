@@ -1,5 +1,5 @@
 import type { MynthClient } from "./client";
-import { API_URL, TASK_STATUS_PATH } from "./constants";
+import { TASK_DETAILS_PATH, TASK_STATUS_PATH } from "./constants";
 import { Task } from "./task";
 import type { MynthSDKTypes } from "./types";
 
@@ -31,6 +31,14 @@ export class TaskAsyncFetchError extends Error {
   }
 }
 
+export class TaskAsyncTaskFetchError extends Error {
+  constructor(taskId: string, status?: number) {
+    const suffix = status ? ` (status ${status})` : "";
+    super(`Failed to fetch task ${taskId}${suffix}`);
+    this.name = "TaskAsyncTaskFetchError";
+  }
+}
+
 type FetchStatusResult =
   | { ok: true; status: MynthSDKTypes.TaskStatus }
   | { ok: false; unauthorized: boolean; retryable: boolean; error?: Error };
@@ -51,6 +59,10 @@ export class TaskAsync {
     this.access = { pat: options.pat };
   }
 
+  toString(): string {
+    return this.id;
+  }
+
   public async toTask(): Promise<Task> {
     // Lazy init - only start polling when explicitly requested
     if (!this._completionPromise) {
@@ -69,17 +81,22 @@ export class TaskAsync {
     while (true) {
       const elapsed = Date.now() - startTime;
 
+      console.log("polling", this.id, elapsed);
+
       if (elapsed >= POLLING_TIMEOUT_MS) {
         throw new TaskAsyncTimeoutError(this.id);
       }
 
       const result = await this.fetchStatus(useApiKeyFallback);
 
+      console.log("result", this.id, result, "\n\n\n");
+
       if (result.ok) {
         retryCount = 0;
 
         if (result.status === "completed") {
-          return new Task({ id: this.id });
+          const taskData = await this.fetchTask();
+          return new Task(taskData);
         }
       } else {
         if (result.unauthorized) {
@@ -104,7 +121,9 @@ export class TaskAsync {
 
       // Calculate polling interval with slight randomness
       const isInFastPhase = elapsed < FAST_POLLING_DURATION_MS;
-      const baseInterval = isInFastPhase ? FAST_POLLING_INTERVAL_MS : SLOW_POLLING_INTERVAL_MS;
+      const baseInterval = isInFastPhase
+        ? FAST_POLLING_INTERVAL_MS
+        : SLOW_POLLING_INTERVAL_MS;
       const jitter = Math.random() * 500; // 0-500ms randomness
       const interval = baseInterval + jitter;
 
@@ -117,7 +136,8 @@ export class TaskAsync {
   }
 
   private async fetchStatus(useApiKey: boolean): Promise<FetchStatusResult> {
-    const accessToken = useApiKey || !this.access.pat ? undefined : this.access.pat;
+    const accessToken =
+      useApiKey || !this.access.pat ? undefined : this.access.pat;
 
     try {
       const response = await this.client.get<{
@@ -156,6 +176,26 @@ export class TaskAsync {
         error: error instanceof Error ? error : new Error(String(error)),
       };
     }
+  }
+
+  private async fetchTask(): Promise<MynthSDKTypes.TaskData> {
+    const response = await this.client.get<MynthSDKTypes.TaskData>(
+      TASK_DETAILS_PATH(this.id)
+    );
+
+    if (response.ok) {
+      return response.data;
+    }
+
+    if (response.status === 401 || response.status === 403) {
+      throw new TaskAsyncUnauthorizedError(this.id);
+    }
+
+    if (response.status === 404) {
+      throw new TaskAsyncUnauthorizedError(this.id);
+    }
+
+    throw new TaskAsyncTaskFetchError(this.id, response.status);
   }
 
   private sleep(ms: number): Promise<void> {

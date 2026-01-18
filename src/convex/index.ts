@@ -1,6 +1,6 @@
 import type { GenericActionCtx } from "convex/server";
 
-import type { WebhookPayload, WebhookTaskImageCompletedPayload } from "./types";
+import type { MynthSDKTypes } from "../types";
 import { tryToGetWebhookSecretFromEnv, verifySignature } from "./utils";
 
 // Webhook header constants
@@ -10,8 +10,12 @@ const WEBHOOK_HEADERS_SIGNATURE = "X-Mynth-Signature";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Convex generic requires any
 type EventHandlers<T extends GenericActionCtx<any> = GenericActionCtx<any>> = {
   imageTaskCompleted?: (
-    payload: WebhookTaskImageCompletedPayload,
-    context: { context: T; request: Request },
+    payload: MynthSDKTypes.WebhookTaskImageCompletedPayload,
+    context: { context: T; request: Request }
+  ) => Promise<void>;
+  imageTaskFailed?: (
+    payload: MynthSDKTypes.WebhookTaskImageFailedPayload,
+    context: { context: T; request: Request }
   ) => Promise<void>;
 };
 
@@ -21,9 +25,10 @@ type MynthWebhookActionOptions = {
 
 export const mynthWebhookAction = (
   eventHandlers: EventHandlers,
-  options?: MynthWebhookActionOptions,
+  options?: MynthWebhookActionOptions
 ) => {
-  const webhookSecret = options?.webhookSecret ?? tryToGetWebhookSecretFromEnv();
+  const webhookSecret =
+    options?.webhookSecret ?? tryToGetWebhookSecretFromEnv();
 
   if (!webhookSecret) {
     throw new Error("`MYNTH_WEBHOOK_SECRET` is not set");
@@ -33,7 +38,7 @@ export const mynthWebhookAction = (
   return async (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Convex generic requires any
     _ctx: GenericActionCtx<any>,
-    request: Request,
+    request: Request
   ): Promise<Response> => {
     const signature = request.headers.get(WEBHOOK_HEADERS_SIGNATURE);
 
@@ -54,11 +59,19 @@ export const mynthWebhookAction = (
       return new Response("Unauthorized", { status: 401 });
     }
 
-    const payload = JSON.parse(bodyRaw) as WebhookPayload;
+    const payload = JSON.parse(bodyRaw) as MynthSDKTypes.WebhookPayload;
 
-    switch (event) {
+    console.log("payload", payload);
+
+    switch (payload.event) {
       case "task.image.completed":
         await eventHandlers.imageTaskCompleted?.(payload, {
+          context: _ctx,
+          request,
+        });
+        break;
+      case "task.image.failed":
+        await eventHandlers.imageTaskFailed?.(payload, {
           context: _ctx,
           request,
         });
@@ -70,6 +83,3 @@ export const mynthWebhookAction = (
     return new Response(undefined, { status: 200 });
   };
 };
-
-// Re-export types for consumers
-export type { WebhookPayload, WebhookTaskImageCompletedPayload } from "./types";

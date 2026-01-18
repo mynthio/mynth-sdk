@@ -4,6 +4,7 @@ import type { Task } from "./task";
 import {
   TaskAsync,
   TaskAsyncFetchError,
+  TaskAsyncTaskFetchError,
   TaskAsyncTimeoutError,
   TaskAsyncUnauthorizedError,
 } from "./task-async";
@@ -18,24 +19,29 @@ class Mynth {
   private readonly client: MynthClient;
 
   constructor(options: { apiKey: string; baseUrl?: string }) {
-    this.client = new MynthClient({ apiKey: options.apiKey, baseUrl: options.baseUrl });
+    this.client = new MynthClient({
+      apiKey: options.apiKey,
+      baseUrl: options.baseUrl,
+    });
   }
 
   // Overload signatures
-  public async generate(request: MynthSDKTypes.ImageGenerationRequest): Promise<Task>;
+  public async generate(
+    request: MynthSDKTypes.ImageGenerationRequest
+  ): Promise<Task>;
   public async generate(
     request: MynthSDKTypes.ImageGenerationRequest,
-    opts: { mode: "async" },
+    opts: { mode: "async" }
   ): Promise<TaskAsync>;
   public async generate(
     request: MynthSDKTypes.ImageGenerationRequest,
-    opts: { mode: "sync" },
+    opts: { mode: "sync" }
   ): Promise<Task>;
 
   // Implementation
   public async generate(
     request: MynthSDKTypes.ImageGenerationRequest,
-    opts: GenerateOptions = {},
+    opts: GenerateOptions = {}
   ): Promise<Task | TaskAsync> {
     const mode = opts.mode ?? "sync";
 
@@ -65,5 +71,7 @@ export {
   TaskAsyncTimeoutError,
   TaskAsyncUnauthorizedError,
   TaskAsyncFetchError,
+  TaskAsyncTaskFetchError,
 };
+export type { MynthSDKTypes };
 export default Mynth;
