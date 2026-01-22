@@ -49,6 +49,6 @@ export class Task<
   }
 
   getMetadata(): MetadataT {
-    return this.data.metadata?.request?.metadata as MetadataT;
+    return this.data.request?.metadata as MetadataT;
   }
 }

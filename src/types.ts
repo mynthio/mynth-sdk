@@ -3,10 +3,6 @@ export namespace MynthSDKTypes {
 
   export type TaskType = "image";
 
-  export type TaskMetadata = {
-    request: ImageGenerationRequestDb;
-  };
-
   export type TaskData = {
     id: string;
     status: TaskStatus;
@@ -15,7 +11,7 @@ export namespace MynthSDKTypes {
     userId: string;
     cost: string | null;
     result: ImageResult | null;
-    metadata: TaskMetadata | null;
+    request: ImageGenerationRequestDb | null;
     createdAt: string;
     updatedAt: string;
   };
@@ -24,6 +20,8 @@ export namespace MynthSDKTypes {
     | "black-forest-labs/flux.1-dev"
     | "black-forest-labs/flux-1-schnell"
     | "tongyi-mai/z-image-turbo";
+
+  export type ImageGenerationModel = ImageGenerationModelId | "auto";
 
   export type PromptStructured = {
     positive: string;
@@ -86,7 +84,9 @@ export namespace MynthSDKTypes {
     custom?: ImageGenerationRequestCustomWebhook[];
   };
 
-  export type ImageGenerationRequestContentRatingLevel<T extends string = string> = {
+  export type ImageGenerationRequestContentRatingLevel<
+    T extends string = string,
+  > = {
     value: T;
     description: string;
   };
@@ -111,7 +111,7 @@ export namespace MynthSDKTypes {
 
   export type ImageGenerationRequest = {
     prompt: ImageGenerationRequestPrompt;
-    model: ImageGenerationModelId;
+    model?: ImageGenerationModel;
     size?: ImageGenerationRequestSize;
     count?: number;
     output?: ImageGenerationRequestOutput;
@@ -134,7 +134,7 @@ export namespace MynthSDKTypes {
 
   export type ImageGenerationRequestDb = {
     prompt: ImageGenerationRequestDbPrompt;
-    model: ImageGenerationModelId;
+    model?: ImageGenerationModel;
     size?: ImageGenerationRequestSize;
     count: number;
     output?: ImageGenerationRequestOutput;

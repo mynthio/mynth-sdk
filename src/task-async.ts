@@ -53,7 +53,8 @@ export class TaskAsync<
 
   private readonly access: { pat?: string };
 
-  private _completionPromise: Promise<Task<MetadataT, ContentRatingT>> | null = null;
+  private _completionPromise: Promise<Task<MetadataT, ContentRatingT>> | null =
+    null;
 
   constructor(id: string, options: { client: MynthClient; pat?: string }) {
     this.id = id;
