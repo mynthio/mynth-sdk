@@ -178,7 +178,7 @@ export namespace MynthSDKTypes {
     fee: string;
   };
 
-  export type ImageResultResolved = {
+  export type ImageResultMagic = {
     resolution?: {
       width: number;
       height: number;
@@ -204,7 +204,7 @@ export namespace MynthSDKTypes {
       id: ImageGenerationModelId;
       settings: ImageResultModelSettings;
     };
-    resolved: ImageResultResolved;
+    magic: ImageResultMagic;
   };
 
   /**
