@@ -143,10 +143,7 @@ export namespace MynthSDKTypes {
     metadata?: Record<string, string | number | boolean>;
   };
 
-  export type ImageResultContentRatingDefaultLevel =
-    | "safe"
-    | "suggestive"
-    | "explicit";
+  export type ImageResultContentRatingDefaultLevel = "sfw" | "nsfw";
 
   export type ImageResultContentRating =
     | {

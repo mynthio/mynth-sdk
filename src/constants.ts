@@ -7,6 +7,11 @@ export const TASK_STATUS_PATH = (id: string) => `${TASK_PATH}/${id}/status`;
 
 export const AVAILABLE_MODELS = [
   {
+    id: "auto",
+    label: "Auto",
+    capabilities: [] as const,
+  },
+  {
     id: "black-forest-labs/flux.1-dev",
     label: "FLUX.1 Dev",
     capabilities: ["magic_prompt", "steps"] as const,
