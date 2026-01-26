@@ -180,10 +180,8 @@ export namespace MynthSDKTypes {
   };
 
   export type ImageResultMagic = {
-    resolution?: {
-      width: number;
-      height: number;
-    };
+    model?: ImageGenerationModelId;
+    size?: string;
     prompt?: {
       positive: string;
       negative?: string;
