@@ -36,4 +36,9 @@ export const AVAILABLE_MODELS = [
     label: "Bismuth Illustrious Mix",
     capabilities: ["magic_prompt", "negative_prompt", "steps"] as const,
   },
+  {
+    id: "google/gemini-3-pro-image-preview",
+    label: "Nano Banana Pro",
+    capabilities: [] as const,
+  },
 ] as const;

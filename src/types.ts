@@ -19,6 +19,8 @@ export namespace MynthSDKTypes {
   export type ImageGenerationModelId =
     | "black-forest-labs/flux.1-dev"
     | "black-forest-labs/flux-1-schnell"
+    | "black-forest-labs/flux.2-dev"
+    | "google/gemini-3-pro-image-preview"
     | "tongyi-mai/z-image-turbo"
     | "john6666/bismuth-illustrious-mix";
 
