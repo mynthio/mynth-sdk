@@ -31,4 +31,9 @@ export const AVAILABLE_MODELS = [
     label: "FLUX.2 Dev",
     capabilities: ["magic_prompt", "steps"] as const,
   },
+  {
+    id: "john6666/bismuth-illustrious-mix",
+    label: "Bismuth Illustrious Mix",
+    capabilities: ["magic_prompt", "negative_prompt", "steps"] as const,
+  },
 ] as const;

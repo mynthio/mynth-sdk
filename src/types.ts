@@ -19,7 +19,8 @@ export namespace MynthSDKTypes {
   export type ImageGenerationModelId =
     | "black-forest-labs/flux.1-dev"
     | "black-forest-labs/flux-1-schnell"
-    | "tongyi-mai/z-image-turbo";
+    | "tongyi-mai/z-image-turbo"
+    | "john6666/bismuth-illustrious-mix";
 
   export type ImageGenerationModel = ImageGenerationModelId | "auto";
 
