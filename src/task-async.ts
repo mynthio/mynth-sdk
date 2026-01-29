@@ -9,6 +9,9 @@ const FAST_POLLING_INTERVAL_MS = 2_500; // 2.5 seconds
 const SLOW_POLLING_INTERVAL_MS = 5_000; // 5 seconds
 const MAX_RETRY_COUNT = 7;
 
+/**
+ * Error thrown when task polling exceeds the maximum timeout duration.
+ */
 export class TaskAsyncTimeoutError extends Error {
   constructor(taskId: string) {
     super(`Task ${taskId} polling timed out after ${POLLING_TIMEOUT_MS}ms`);
@@ -16,6 +19,9 @@ export class TaskAsyncTimeoutError extends Error {
   }
 }
 
+/**
+ * Error thrown when access to a task is denied (invalid API key or PAT).
+ */
 export class TaskAsyncUnauthorizedError extends Error {
   constructor(taskId: string) {
     super(`Unauthorized access to task ${taskId}`);
@@ -23,6 +29,9 @@ export class TaskAsyncUnauthorizedError extends Error {
   }
 }
 
+/**
+ * Error thrown when fetching task status fails after multiple retries.
+ */
 export class TaskAsyncFetchError extends Error {
   constructor(taskId: string, cause?: Error) {
     super(`Failed to fetch status for task ${taskId} after multiple retries`);
@@ -31,6 +40,9 @@ export class TaskAsyncFetchError extends Error {
   }
 }
 
+/**
+ * Error thrown when fetching full task data fails.
+ */
 export class TaskAsyncTaskFetchError extends Error {
   constructor(taskId: string, status?: number) {
     const suffix = status ? ` (status ${status})` : "";
@@ -39,19 +51,45 @@ export class TaskAsyncTaskFetchError extends Error {
   }
 }
 
+/**
+ * Error thrown when a task fails during generation.
+ */
+export class TaskAsyncTaskFailedError extends Error {
+  constructor(taskId: string) {
+    super(`Task ${taskId} failed during generation`);
+    this.name = "TaskAsyncTaskFailedError";
+  }
+}
+
 type FetchStatusResult =
   | { ok: true; status: MynthSDKTypes.TaskStatus }
   | { ok: false; unauthorized: boolean; retryable: boolean; error?: Error };
 
+/**
+ * Public access information for a task, used for client-side polling.
+ */
+export type TaskAsyncAccess = {
+  /** Public access token for client-side status polling */
+  publicAccessToken?: string;
+};
+
+/**
+ * Represents an async task that can be polled for completion.
+ * Use `toTask()` to wait for completion and get the full task result.
+ *
+ * @template MetadataT - Type of the metadata attached to the request
+ * @template ContentRatingT - Type of the content rating response
+ */
 export class TaskAsync<
   MetadataT = Record<string, string | number | boolean> | undefined,
   ContentRatingT = MynthSDKTypes.ImageResultContentRating | undefined,
 > {
+  /** The unique identifier for this task */
   public readonly id: string;
 
   private readonly client: MynthClient;
 
-  private readonly access: { pat?: string };
+  private readonly _access: TaskAsyncAccess;
 
   private _completionPromise: Promise<Task<MetadataT, ContentRatingT>> | null =
     null;
@@ -60,13 +98,30 @@ export class TaskAsync<
     this.id = id;
 
     this.client = options.client;
-    this.access = { pat: options.pat };
+    this._access = { publicAccessToken: options.pat };
+  }
+
+  /**
+   * Public access information for client-side polling.
+   * Contains the public access token if one was generated.
+   */
+  get access(): TaskAsyncAccess {
+    return this._access;
   }
 
   toString(): string {
     return this.id;
   }
 
+  /**
+   * Polls the task until completion and returns the full Task object.
+   * Multiple calls to this method return the same promise.
+   *
+   * @throws {TaskAsyncTimeoutError} If polling exceeds the timeout
+   * @throws {TaskAsyncUnauthorizedError} If access is denied
+   * @throws {TaskAsyncFetchError} If fetching status fails repeatedly
+   * @throws {TaskAsyncTaskFailedError} If the task fails during generation
+   */
   public async toTask(): Promise<Task<MetadataT, ContentRatingT>> {
     // Lazy init - only start polling when explicitly requested
     if (!this._completionPromise) {
@@ -85,15 +140,11 @@ export class TaskAsync<
     while (true) {
       const elapsed = Date.now() - startTime;
 
-      console.log("polling", this.id, elapsed);
-
       if (elapsed >= POLLING_TIMEOUT_MS) {
         throw new TaskAsyncTimeoutError(this.id);
       }
 
       const result = await this.fetchStatus(useApiKeyFallback);
-
-      console.log("result", this.id, result, "\n\n\n");
 
       if (result.ok) {
         retryCount = 0;
@@ -102,10 +153,14 @@ export class TaskAsync<
           const taskData = await this.fetchTask();
           return new Task(taskData);
         }
+
+        if (result.status === "failed") {
+          throw new TaskAsyncTaskFailedError(this.id);
+        }
       } else {
         if (result.unauthorized) {
           // If using PAT and got unauthorized, try falling back to API key
-          if (this.access.pat && !useApiKeyFallback) {
+          if (this._access.publicAccessToken && !useApiKeyFallback) {
             useApiKeyFallback = true;
             continue; // Retry immediately with API key
           }
@@ -141,7 +196,9 @@ export class TaskAsync<
 
   private async fetchStatus(useApiKey: boolean): Promise<FetchStatusResult> {
     const accessToken =
-      useApiKey || !this.access.pat ? undefined : this.access.pat;
+      useApiKey || !this._access.publicAccessToken
+        ? undefined
+        : this._access.publicAccessToken;
 
     try {
       const response = await this.client.get<{

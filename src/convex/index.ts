@@ -7,22 +7,56 @@ import { tryToGetWebhookSecretFromEnv, verifySignature } from "./utils";
 const WEBHOOK_HEADERS_EVENT = "X-Mynth-Event";
 const WEBHOOK_HEADERS_SIGNATURE = "X-Mynth-Signature";
 
+/**
+ * Event handlers for Mynth webhook events.
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Convex generic requires any
-type EventHandlers<T extends GenericActionCtx<any> = GenericActionCtx<any>> = {
+export type EventHandlers<T extends GenericActionCtx<any> = GenericActionCtx<any>> = {
+  /** Called when an image generation task completes successfully */
   imageTaskCompleted?: (
     payload: MynthSDKTypes.WebhookTaskImageCompletedPayload,
     context: { context: T; request: Request }
   ) => Promise<void>;
+  /** Called when an image generation task fails */
   imageTaskFailed?: (
     payload: MynthSDKTypes.WebhookTaskImageFailedPayload,
     context: { context: T; request: Request }
   ) => Promise<void>;
 };
 
-type MynthWebhookActionOptions = {
+/**
+ * Options for configuring the webhook action.
+ */
+export type MynthWebhookActionOptions = {
+  /** Webhook secret for signature verification. Defaults to MYNTH_WEBHOOK_SECRET env var. */
   webhookSecret?: string;
 };
 
+/**
+ * Creates a Convex HTTP action handler for Mynth webhooks.
+ *
+ * @param eventHandlers - Handlers for different webhook events
+ * @param options - Configuration options
+ * @returns A Convex HTTP action handler
+ *
+ * @example
+ * ```typescript
+ * // In convex/http.ts
+ * import { mynthWebhookAction } from "@mynthio/sdk/convex";
+ *
+ * export const mynthWebhook = mynthWebhookAction({
+ *   imageTaskCompleted: async (payload, { context }) => {
+ *     await context.runMutation(internal.images.save, {
+ *       taskId: payload.task.id,
+ *       images: payload.result.images,
+ *     });
+ *   },
+ *   imageTaskFailed: async (payload, { context }) => {
+ *     console.error("Task failed:", payload.errors);
+ *   },
+ * });
+ * ```
+ */
 export const mynthWebhookAction = (
   eventHandlers: EventHandlers,
   options?: MynthWebhookActionOptions
@@ -31,13 +65,15 @@ export const mynthWebhookAction = (
     options?.webhookSecret ?? tryToGetWebhookSecretFromEnv();
 
   if (!webhookSecret) {
-    throw new Error("`MYNTH_WEBHOOK_SECRET` is not set");
+    throw new Error(
+      "MYNTH_WEBHOOK_SECRET is required. Either pass it as an option or set the environment variable."
+    );
   }
 
   // Return a function that matches PublicHttpAction signature
   return async (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Convex generic requires any
-    _ctx: GenericActionCtx<any>,
+    ctx: GenericActionCtx<any>,
     request: Request
   ): Promise<Response> => {
     const signature = request.headers.get(WEBHOOK_HEADERS_SIGNATURE);
@@ -61,18 +97,16 @@ export const mynthWebhookAction = (
 
     const payload = JSON.parse(bodyRaw) as MynthSDKTypes.WebhookPayload;
 
-    console.log("payload", payload);
-
     switch (payload.event) {
       case "task.image.completed":
         await eventHandlers.imageTaskCompleted?.(payload, {
-          context: _ctx,
+          context: ctx,
           request,
         });
         break;
       case "task.image.failed":
         await eventHandlers.imageTaskFailed?.(payload, {
-          context: _ctx,
+          context: ctx,
           request,
         });
         break;

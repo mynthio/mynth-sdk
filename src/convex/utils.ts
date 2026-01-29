@@ -1,9 +1,20 @@
-export const tryToGetWebhookSecretFromEnv = () => {
-  return process.env.MYNTH_WEBHOOK_SECRET;
+/** Environment variable name for the webhook secret */
+const WEBHOOK_SECRET_ENV_VAR = "MYNTH_WEBHOOK_SECRET";
+
+/**
+ * Attempts to read the webhook secret from environment variables.
+ * @internal
+ */
+export const tryToGetWebhookSecretFromEnv = (): string | undefined => {
+  if (typeof process !== "undefined" && process.env) {
+    return process.env[WEBHOOK_SECRET_ENV_VAR];
+  }
+  return undefined;
 };
 
 /**
  * Parse the signature header format: `t={timestamp},v1={signature}`
+ * @internal
  */
 function parseSignatureHeader(signatureHeader: string): {
   timestamp: string;
@@ -29,10 +40,20 @@ function parseSignatureHeader(signatureHeader: string): {
   return { timestamp, signature };
 }
 
+/**
+ * Verifies the HMAC-SHA256 signature of a webhook payload.
+ * Uses timing-safe comparison to prevent timing attacks.
+ *
+ * @param body - The raw request body
+ * @param signatureHeader - The X-Mynth-Signature header value
+ * @param secret - The webhook secret
+ * @returns True if the signature is valid
+ * @internal
+ */
 export async function verifySignature(
   body: string,
   signatureHeader: string,
-  secret: string,
+  secret: string
 ): Promise<boolean> {
   // Parse the signature header to extract timestamp and signature
   const parsed = parseSignatureHeader(signatureHeader);
@@ -51,7 +72,7 @@ export async function verifySignature(
     encoder.encode(secret),
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["sign"],
+    ["sign"]
   );
 
   const signed = await crypto.subtle.sign("HMAC", key, encoder.encode(message));
@@ -60,6 +81,7 @@ export async function verifySignature(
   return timingSafeEqual(expected, signature);
 }
 
+/** Convert bytes to hex string */
 function toHex(bytes: Uint8Array): string {
   let hex = "";
   for (const byte of bytes) {
@@ -68,6 +90,7 @@ function toHex(bytes: Uint8Array): string {
   return hex;
 }
 
+/** Timing-safe string comparison to prevent timing attacks */
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
 
