@@ -1,11 +1,12 @@
 import { MynthAPIError, MynthClient } from "./client";
+import type { AvailableModel, ModelCapability } from "./constants";
 import {
   API_KEY_ENV_VAR,
   AVAILABLE_MODELS,
   GENERATE_IMAGE_PATH,
 } from "./constants";
-import type { AvailableModel, ModelCapability } from "./constants";
 import type { Task } from "./task";
+import type { TaskAsyncAccess } from "./task-async";
 import {
   TaskAsync,
   TaskAsyncFetchError,
@@ -14,7 +15,6 @@ import {
   TaskAsyncTimeoutError,
   TaskAsyncUnauthorizedError,
 } from "./task-async";
-import type { TaskAsyncAccess } from "./task-async";
 import type { MynthSDKTypes } from "./types";
 
 /**
