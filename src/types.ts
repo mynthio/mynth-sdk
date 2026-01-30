@@ -41,7 +41,8 @@ export namespace MynthSDKTypes {
     | "google/gemini-3-pro-image-preview"
     | "tongyi-mai/z-image-turbo"
     | "john6666/bismuth-illustrious-mix"
-    | "wan/wan2.6-image";
+    | "wan/wan2.6-image"
+    | "xai/grok-imagine-image";
 
   /** Model to use for generation ("auto" lets the system choose) */
   export type ImageGenerationModel = ImageGenerationModelId | "auto";

@@ -74,4 +74,9 @@ export const AVAILABLE_MODELS: readonly AvailableModel[] = [
     label: "Wan 2.6 Image",
     capabilities: [],
   },
+  {
+    id: "xai/grok-imagine-image",
+    label: "Grok Imagine Image",
+    capabilities: [],
+  },
 ];
