@@ -81,7 +81,7 @@ export type TaskAsyncAccess = {
  * @template ContentRatingT - Type of the content rating response
  */
 export class TaskAsync<
-  MetadataT = Record<string, string | number | boolean> | undefined,
+  MetadataT = Record<string, unknown> | undefined,
   ContentRatingT = MynthSDKTypes.ImageResultContentRating | undefined,
 > {
   /** The unique identifier for this task */

@@ -63,16 +63,6 @@ export namespace MynthSDKTypes {
     prompt: PromptStructured;
   };
 
-  /** Normalizes a prompt to structured format */
-  export function normalizePrompt(
-    prompt: string | PromptStructured
-  ): PromptStructured {
-    if (typeof prompt === "string") {
-      return { positive: prompt };
-    }
-    return prompt;
-  }
-
   /**
    * Prompt input for image generation.
    * Can be a simple string or structured with positive/negative prompts.
@@ -188,8 +178,8 @@ export namespace MynthSDKTypes {
     webhook?: ImageGenerationRequestWebhook;
     /** Content rating classification settings */
     content_rating?: ImageGenerationRequestContentRating;
-    /** Custom metadata to attach (returned in results and webhooks) */
-    metadata?: Record<string, string | number | boolean>;
+    /** Custom metadata to attach (returned in results and webhooks). Max 2KB. */
+    metadata?: Record<string, unknown>;
   };
 
   /** @internal Stored prompt format */
@@ -215,7 +205,7 @@ export namespace MynthSDKTypes {
     output?: ImageGenerationRequestOutput;
     webhook?: ImageGenerationRequestDbWebhook;
     content_rating?: ImageGenerationRequestDbContentRating;
-    metadata?: Record<string, string | number | boolean>;
+    metadata?: Record<string, unknown>;
   };
 
   /** Default content rating levels */

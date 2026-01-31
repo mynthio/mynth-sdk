@@ -29,7 +29,7 @@ type TypedImageResult<ContentRatingT> = Omit<
  * @template ContentRatingT - Type of the content rating response
  */
 export class Task<
-  MetadataT = Record<string, string | number | boolean> | undefined,
+  MetadataT = Record<string, unknown> | undefined,
   ContentRatingT = MynthSDKTypes.ImageResultContentRating | undefined,
 > {
   /** Raw task data from the API */
