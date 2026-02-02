@@ -225,6 +225,8 @@ export namespace MynthSDKTypes {
   /** Successfully generated image */
   export type ImageResultImageSuccess = {
     status: "succeeded";
+    /** Image ID */
+    id: string;
     /** CDN URL of the generated image */
     url: string;
     /** Provider-specific image identifier */
@@ -257,26 +259,8 @@ export namespace MynthSDKTypes {
     fee: string;
   };
 
-  /** Auto-enhanced parameters (when magic prompt is enabled) */
-  export type ImageResultMagic = {
-    /** Model selected by auto mode */
-    model?: ImageGenerationModelId;
-    /** Size selected by auto mode */
-    size?: string;
-    /** Enhanced prompt */
-    prompt?: {
-      positive: string;
-      negative?: string;
-    };
-  };
-
   /** Model-specific settings used for generation */
-  export type ImageResultModelSettings = {
-    /** Actual resolution used */
-    resolution: {
-      width: number;
-      height: number;
-    };
+  export type ImageResultSettings = {
     /** Number of inference steps (model-dependent) */
     steps?: number;
   };
@@ -287,15 +271,17 @@ export namespace MynthSDKTypes {
     images: ImageResultImage[];
     /** Cost breakdown */
     cost: ImageResultCost;
-    /** Model information */
-    model: {
-      /** Model that was used */
-      id: ImageGenerationModelId;
-      /** Model-specific settings */
-      settings: ImageResultModelSettings;
+    /** Model that was used */
+    model_id: ImageGenerationModelId;
+    /** Image size as a string (e.g., "1024x1024") */
+    size: string;
+    /** Model-specific settings */
+    settings: ImageResultSettings;
+    /** Auto-enhanced prompt (when magic prompt is enabled) */
+    magic_prompt?: {
+      positive: string;
+      negative?: string;
     };
-    /** Auto-enhanced parameters */
-    magic: ImageResultMagic;
   };
 
   /**
