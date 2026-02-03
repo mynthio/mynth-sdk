@@ -60,6 +60,11 @@ export const AVAILABLE_MODELS: readonly AvailableModel[] = [
     capabilities: ["magic_prompt", "steps"],
   },
   {
+    id: "black-forest-labs/flux.2-klein-4b",
+    label: "FLUX.2 Klein 4B",
+    capabilities: [],
+  },
+  {
     id: "john6666/bismuth-illustrious-mix",
     label: "Bismuth Illustrious Mix",
     capabilities: ["magic_prompt", "negative_prompt", "steps"],

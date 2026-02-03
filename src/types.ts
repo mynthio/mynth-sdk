@@ -38,6 +38,7 @@ export namespace MynthSDKTypes {
     | "black-forest-labs/flux.1-dev"
     | "black-forest-labs/flux-1-schnell"
     | "black-forest-labs/flux.2-dev"
+    | "black-forest-labs/flux.2-klein-4b"
     | "google/gemini-3-pro-image-preview"
     | "tongyi-mai/z-image-turbo"
     | "john6666/bismuth-illustrious-mix"
