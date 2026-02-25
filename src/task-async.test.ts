@@ -15,16 +15,18 @@ import type { MynthSDKTypes } from "./types";
 // Test Helpers
 // ============================================================================
 
-function createMockClient(overrides: {
-  get?: ReturnType<typeof vi.fn>;
-} = {}): MynthClient {
+function createMockClient(
+  overrides: {
+    get?: ReturnType<typeof vi.fn>;
+  } = {},
+): MynthClient {
   return {
     get: overrides.get ?? vi.fn(),
   } as unknown as MynthClient;
 }
 
 function createMockTaskData(
-  overrides: Partial<MynthSDKTypes.TaskData> = {}
+  overrides: Partial<MynthSDKTypes.TaskData> = {},
 ): MynthSDKTypes.TaskData {
   return {
     id: "test-task-id",
@@ -448,9 +450,7 @@ describe("TaskAsync", () => {
       // Act - start the task promise and set up the rejection expectation together
       // to avoid unhandled rejection warnings
       const taskPromise = taskAsync.toTask();
-      const rejectionExpectation = expect(taskPromise).rejects.toThrow(
-        TaskAsyncFetchError
-      );
+      const rejectionExpectation = expect(taskPromise).rejects.toThrow(TaskAsyncFetchError);
 
       // Advance timers to trigger all retries (7 retries max)
       for (let i = 0; i < 8; i++) {
@@ -568,8 +568,7 @@ describe("TaskAsync", () => {
       // Act - start the task promise and set up the rejection expectation together
       // to avoid unhandled rejection warnings
       const taskPromise = taskAsync.toTask();
-      const rejectionExpectation =
-        expect(taskPromise).rejects.toThrow(TaskAsyncTimeoutError);
+      const rejectionExpectation = expect(taskPromise).rejects.toThrow(TaskAsyncTimeoutError);
 
       // Advance time past the 5-minute timeout
       await vi.advanceTimersByTimeAsync(1000 * 60 * 6); // 6 minutes

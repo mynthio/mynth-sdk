@@ -3,25 +3,37 @@ name: Release
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  ci:
-    name: Build & Test
+  verify:
+    name: Verify Main
     runs-on: ubuntu-latest
+    # Skip verification on release-please commits (version bumps, changelog updates)
+    if: "!startsWith(github.event.head_commit.message, 'chore(main): release')"
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Format check
+        run: bun run format:check
 
       - name: Type check
         run: bun run typecheck
@@ -33,20 +45,43 @@ jobs:
         run: bun run build
 
   release:
-    name: Release
+    name: Create Release PR / GitHub Release
     runs-on: ubuntu-latest
-    needs: ci
-    environment: npm
+    needs: verify
+    # Run even when verify is skipped (release-please commits)
+    if: ${{ !failure() && !cancelled() }}
     permissions:
       contents: write
       pull-requests: write
+      issues: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+
+    steps:
+      - name: Release Please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    needs: release
+    if: ${{ needs.release.outputs.release_created == 'true' }}
+    environment: npm
+    permissions:
+      contents: read
       id-token: write
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-          fetch-depth: 0
+          ref: ${{ needs.release.outputs.tag_name }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -54,8 +89,7 @@ jobs:
       - name: Setup Node.js for npm publish
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
-          registry-url: "https://registry.npmjs.org"
+          node-version: "24"
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -63,14 +97,5 @@ jobs:
       - name: Build
         run: bun run build
 
-      - name: Create Release Pull Request or Publish
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          publish: npm publish --access public
-          version: bun run version
-          commit: "chore: version packages"
-          title: "chore: version packages"
-          createGithubReleases: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish package to npm
+        run: npm publish --provenance --access public

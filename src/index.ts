@@ -1,10 +1,6 @@
 import { MynthAPIError, MynthClient } from "./client";
 import type { AvailableModel, ModelCapability } from "./constants";
-import {
-  API_KEY_ENV_VAR,
-  AVAILABLE_MODELS,
-  GENERATE_IMAGE_PATH,
-} from "./constants";
+import { API_KEY_ENV_VAR, AVAILABLE_MODELS, GENERATE_IMAGE_PATH } from "./constants";
 import type { Task } from "./task";
 import type { TaskAsyncAccess } from "./task-async";
 import {
@@ -40,18 +36,14 @@ type MynthOptions = {
 };
 
 // Extract metadata type from ImageGenerationRequest
-type ExtractMetadata<T extends MynthSDKTypes.ImageGenerationRequest> =
-  T["metadata"];
+type ExtractMetadata<T extends MynthSDKTypes.ImageGenerationRequest> = T["metadata"];
 
 // Extract content rating configuration from ImageGenerationRequest
-type ExtractContentRatingConfig<
-  T extends MynthSDKTypes.ImageGenerationRequest,
-> = T["content_rating"];
+type ExtractContentRatingConfig<T extends MynthSDKTypes.ImageGenerationRequest> =
+  T["content_rating"];
 
 // Extract content rating levels for custom mode - handle both mutable and readonly arrays
-type ExtractContentRatingLevels<
-  T extends MynthSDKTypes.ImageGenerationRequest,
-> =
+type ExtractContentRatingLevels<T extends MynthSDKTypes.ImageGenerationRequest> =
   ExtractContentRatingConfig<T> extends { levels: readonly (infer L)[] }
     ? L
     : ExtractContentRatingConfig<T> extends { levels: (infer L)[] }
@@ -59,26 +51,16 @@ type ExtractContentRatingLevels<
       : never;
 
 // Extract content rating level values as union type
-type ExtractContentRatingLevelValues<
-  T extends MynthSDKTypes.ImageGenerationRequest,
-> =
-  ExtractContentRatingLevels<T> extends { value: infer V }
-    ? V extends string
-      ? V
-      : never
-    : never;
+type ExtractContentRatingLevelValues<T extends MynthSDKTypes.ImageGenerationRequest> =
+  ExtractContentRatingLevels<T> extends { value: infer V } ? (V extends string ? V : never) : never;
 
 // Determine if content rating is custom (has levels defined)
 type IsContentRatingCustom<T extends MynthSDKTypes.ImageGenerationRequest> =
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Required for type inference
-  ExtractContentRatingConfig<T> extends { levels: readonly any[] | any[] }
-    ? true
-    : false;
+  ExtractContentRatingConfig<T> extends { levels: readonly any[] | any[] } ? true : false;
 
 // Create the appropriate content rating response type based on request config
-type ExtractContentRatingResponse<
-  T extends MynthSDKTypes.ImageGenerationRequest,
-> =
+type ExtractContentRatingResponse<T extends MynthSDKTypes.ImageGenerationRequest> =
   IsContentRatingCustom<T> extends true
     ? {
         mode: "custom";
@@ -138,7 +120,7 @@ class Mynth {
 
     if (!apiKey) {
       throw new Error(
-        `Mynth API key is required. Either pass it as an option or set the ${API_KEY_ENV_VAR} environment variable.`
+        `Mynth API key is required. Either pass it as an option or set the ${API_KEY_ENV_VAR} environment variable.`,
       );
     }
 
@@ -164,7 +146,7 @@ class Mynth {
    * ```
    */
   public async generate<const T extends MynthSDKTypes.ImageGenerationRequest>(
-    request: T
+    request: T,
   ): Promise<Task<ExtractMetadata<T>, ExtractContentRatingResponse<T>>>;
 
   /**
@@ -190,7 +172,7 @@ class Mynth {
    */
   public async generate<const T extends MynthSDKTypes.ImageGenerationRequest>(
     request: T,
-    opts: { mode: "async" }
+    opts: { mode: "async" },
   ): Promise<TaskAsync<ExtractMetadata<T>, ExtractContentRatingResponse<T>>>;
 
   /**
@@ -202,13 +184,13 @@ class Mynth {
    */
   public async generate<const T extends MynthSDKTypes.ImageGenerationRequest>(
     request: T,
-    opts: { mode: "sync" }
+    opts: { mode: "sync" },
   ): Promise<Task<ExtractMetadata<T>, ExtractContentRatingResponse<T>>>;
 
   // Implementation
   public async generate<const T extends MynthSDKTypes.ImageGenerationRequest>(
     request: T,
-    opts: GenerateOptions = {}
+    opts: GenerateOptions = {},
   ): Promise<
     | Task<ExtractMetadata<T>, ExtractContentRatingResponse<T>>
     | TaskAsync<ExtractMetadata<T>, ExtractContentRatingResponse<T>>
@@ -222,13 +204,13 @@ class Mynth {
       };
     }>(GENERATE_IMAGE_PATH, request);
 
-    const taskAsync = new TaskAsync<
-      ExtractMetadata<T>,
-      ExtractContentRatingResponse<T>
-    >(json.taskId, {
-      client: this.client,
-      pat: json.access?.publicAccessToken,
-    });
+    const taskAsync = new TaskAsync<ExtractMetadata<T>, ExtractContentRatingResponse<T>>(
+      json.taskId,
+      {
+        client: this.client,
+        pat: json.access?.publicAccessToken,
+      },
+    );
 
     if (mode === "async") {
       return taskAsync;
