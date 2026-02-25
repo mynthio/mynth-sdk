@@ -15,12 +15,12 @@ export type EventHandlers<T extends GenericActionCtx<any> = GenericActionCtx<any
   /** Called when an image generation task completes successfully */
   imageTaskCompleted?: (
     payload: MynthSDKTypes.WebhookTaskImageCompletedPayload,
-    context: { context: T; request: Request }
+    context: { context: T; request: Request },
   ) => Promise<void>;
   /** Called when an image generation task fails */
   imageTaskFailed?: (
     payload: MynthSDKTypes.WebhookTaskImageFailedPayload,
-    context: { context: T; request: Request }
+    context: { context: T; request: Request },
   ) => Promise<void>;
 };
 
@@ -59,14 +59,13 @@ export type MynthWebhookActionOptions = {
  */
 export const mynthWebhookAction = (
   eventHandlers: EventHandlers,
-  options?: MynthWebhookActionOptions
+  options?: MynthWebhookActionOptions,
 ) => {
-  const webhookSecret =
-    options?.webhookSecret ?? tryToGetWebhookSecretFromEnv();
+  const webhookSecret = options?.webhookSecret ?? tryToGetWebhookSecretFromEnv();
 
   if (!webhookSecret) {
     throw new Error(
-      "MYNTH_WEBHOOK_SECRET is required. Either pass it as an option or set the environment variable."
+      "MYNTH_WEBHOOK_SECRET is required. Either pass it as an option or set the environment variable.",
     );
   }
 
@@ -74,7 +73,7 @@ export const mynthWebhookAction = (
   return async (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Convex generic requires any
     ctx: GenericActionCtx<any>,
-    request: Request
+    request: Request,
   ): Promise<Response> => {
     const signature = request.headers.get(WEBHOOK_HEADERS_SIGNATURE);
 

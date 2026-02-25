@@ -13,7 +13,7 @@
   "author": "mynth.io",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mynth-io/sdk"
+    "url": "https://github.com/mynthio/mynth-sdk"
   },
   "files": [
     "dist",
@@ -46,16 +46,12 @@
     "test:watch": "vitest",
     "lint": "oxlint -c .oxlintrc.json .",
     "lint:fix": "oxlint -c .oxlintrc.json --fix .",
-    "format": "oxfmt --write",
-    "format:check": "oxfmt --check",
+    "format": "oxfmt --write --ignore-path .oxfmtignore",
+    "format:check": "oxfmt --check --ignore-path .oxfmtignore",
     "typecheck": "tsc --noEmit",
-    "changeset": "changeset",
-    "version": "changeset version",
     "release": "bun run build && npm publish --access public"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "^0.5.1",
-    "@changesets/cli": "^2.29.4",
     "@types/bun": "^1.3.9",
     "convex": "^1.32.0",
     "oxfmt": "^0.35.0",
