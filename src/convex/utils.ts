@@ -53,7 +53,7 @@ function parseSignatureHeader(signatureHeader: string): {
 export async function verifySignature(
   body: string,
   signatureHeader: string,
-  secret: string
+  secret: string,
 ): Promise<boolean> {
   // Parse the signature header to extract timestamp and signature
   const parsed = parseSignatureHeader(signatureHeader);
@@ -72,7 +72,7 @@ export async function verifySignature(
     encoder.encode(secret),
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["sign"]
+    ["sign"],
   );
 
   const signed = await crypto.subtle.sign("HMAC", key, encoder.encode(message));
