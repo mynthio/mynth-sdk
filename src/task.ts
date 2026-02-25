@@ -15,10 +15,7 @@ type TypedImageResultImage<ContentRatingT> =
   | TypedImageResultImageFailure;
 
 /** Typed result with custom content rating type on images */
-type TypedImageResult<ContentRatingT> = Omit<
-  MynthSDKTypes.ImageResult,
-  "images"
-> & {
+type TypedImageResult<ContentRatingT> = Omit<MynthSDKTypes.ImageResult, "images"> & {
   images: TypedImageResultImage<ContentRatingT>[];
 };
 
@@ -74,10 +71,7 @@ export class Task<
   get urls(): string[] {
     return (
       this.data.result?.images
-        .filter(
-          (img): img is MynthSDKTypes.ImageResultImageSuccess =>
-            img.status === "succeeded"
-        )
+        .filter((img): img is MynthSDKTypes.ImageResultImageSuccess => img.status === "succeeded")
         .map((img) => img.url) ?? []
     );
   }
@@ -88,24 +82,16 @@ export class Task<
    * @param options.includeFailed - If true, includes failed image results
    * @returns Array of image results
    */
-  getImages(options: {
-    includeFailed: true;
-  }): TypedImageResultImage<ContentRatingT>[];
-  getImages(options?: {
-    includeFailed?: false;
-  }): TypedImageResultImageSuccess<ContentRatingT>[];
+  getImages(options: { includeFailed: true }): TypedImageResultImage<ContentRatingT>[];
+  getImages(options?: { includeFailed?: false }): TypedImageResultImageSuccess<ContentRatingT>[];
   getImages(
-    options: { includeFailed?: boolean } = {}
-  ):
-    | TypedImageResultImage<ContentRatingT>[]
-    | TypedImageResultImageSuccess<ContentRatingT>[] {
+    options: { includeFailed?: boolean } = {},
+  ): TypedImageResultImage<ContentRatingT>[] | TypedImageResultImageSuccess<ContentRatingT>[] {
     if (options.includeFailed)
-      return (this.data.result?.images ??
-        []) as TypedImageResultImage<ContentRatingT>[];
+      return (this.data.result?.images ?? []) as TypedImageResultImage<ContentRatingT>[];
 
-    return (this.data.result?.images.filter(
-      (image) => image.status === "succeeded"
-    ) ?? []) as TypedImageResultImageSuccess<ContentRatingT>[];
+    return (this.data.result?.images.filter((image) => image.status === "succeeded") ??
+      []) as TypedImageResultImageSuccess<ContentRatingT>[];
   }
 
   /**
