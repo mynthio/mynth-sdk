@@ -91,8 +91,7 @@ export class TaskAsync<
 
   private readonly _access: TaskAsyncAccess;
 
-  private _completionPromise: Promise<Task<MetadataT, ContentRatingT>> | null =
-    null;
+  private _completionPromise: Promise<Task<MetadataT, ContentRatingT>> | null = null;
 
   constructor(id: string, options: { client: MynthClient; pat?: string }) {
     this.id = id;
@@ -180,9 +179,7 @@ export class TaskAsync<
 
       // Calculate polling interval with slight randomness
       const isInFastPhase = elapsed < FAST_POLLING_DURATION_MS;
-      const baseInterval = isInFastPhase
-        ? FAST_POLLING_INTERVAL_MS
-        : SLOW_POLLING_INTERVAL_MS;
+      const baseInterval = isInFastPhase ? FAST_POLLING_INTERVAL_MS : SLOW_POLLING_INTERVAL_MS;
       const jitter = Math.random() * 500; // 0-500ms randomness
       const interval = baseInterval + jitter;
 
@@ -196,9 +193,7 @@ export class TaskAsync<
 
   private async fetchStatus(useApiKey: boolean): Promise<FetchStatusResult> {
     const accessToken =
-      useApiKey || !this._access.publicAccessToken
-        ? undefined
-        : this._access.publicAccessToken;
+      useApiKey || !this._access.publicAccessToken ? undefined : this._access.publicAccessToken;
 
     try {
       const response = await this.client.get<{
@@ -240,9 +235,7 @@ export class TaskAsync<
   }
 
   private async fetchTask(): Promise<MynthSDKTypes.TaskData> {
-    const response = await this.client.get<MynthSDKTypes.TaskData>(
-      TASK_DETAILS_PATH(this.id)
-    );
+    const response = await this.client.get<MynthSDKTypes.TaskData>(TASK_DETAILS_PATH(this.id));
 
     if (response.ok) {
       return response.data;

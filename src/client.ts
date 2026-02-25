@@ -76,10 +76,7 @@ class MynthClient {
 
   public async get<DataType>(
     path: string,
-    {
-      headers,
-      accessToken,
-    }: { headers?: Record<string, string>; accessToken?: string } = {}
+    { headers, accessToken }: { headers?: Record<string, string>; accessToken?: string } = {},
   ): Promise<{ data: DataType; status: number; ok: boolean }> {
     const response = await fetch(this.getUrl(path), {
       headers: {
