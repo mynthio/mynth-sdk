@@ -192,6 +192,10 @@ try {
 
 For full documentation, visit [docs.mynth.io](https://docs.mynth.io).
 
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup, commit message rules (Conventional Commits), and how the automated release process works.
+
 ## License
 
 MIT
