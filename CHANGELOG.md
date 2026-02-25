@@ -5,6 +5,13 @@
 
 ### Build System
 
+* switch from changesets to release-please ([92f772e](https://github.com/mynthio/mynth-sdk/commit/92f772e079ca470d9da4c558c91545df735ac5c3))
+
+## [0.0.2](https://github.com/mynthio/mynth-sdk/compare/sdk-v0.0.2...sdk-v0.0.2) (2026-02-25)
+
+
+### Build System
+
 * switch from changesets to release-please ([7e9144e](https://github.com/mynthio/mynth-sdk/commit/7e9144e2b981289f15c980a90e905d8427f810e3))
 
 ## [0.0.2](https://github.com/mynthio/mynth-sdk/compare/sdk-v0.0.2...sdk-v0.0.2) (2026-02-25)
