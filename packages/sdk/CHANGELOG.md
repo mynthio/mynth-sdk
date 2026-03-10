@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.4](https://github.com/mynthio/mynth-sdk/compare/sdk-v0.0.3...sdk-v0.0.4) (2026-03-10)
+
+
+### Features
+
+* **monorepo:** move sdk into packages workspace ([e7f66d4](https://github.com/mynthio/mynth-sdk/commit/e7f66d4173e843789556e780e55d4b40e14a9239))
+
 ## [0.0.3](https://github.com/mynthio/mynth-sdk/compare/sdk-v0.0.2...sdk-v0.0.3) (2026-03-06)
 
 
