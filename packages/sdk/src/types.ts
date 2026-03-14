@@ -35,6 +35,8 @@ export namespace MynthSDKTypes {
 
   /** Available model identifiers */
   export type ImageGenerationModelId =
+    | "alibaba/qwen-image-2.0"
+    | "alibaba/qwen-image-2.0-pro"
     | "bytedance/seedream-5.0-lite"
     | "black-forest-labs/flux.1-dev"
     | "black-forest-labs/flux-1-schnell"
@@ -76,15 +78,6 @@ export namespace MynthSDKTypes {
    * Can be a simple string or structured with positive/negative prompts.
    */
   export type ImageGenerationRequestPrompt = GenerateImageOptionsIn["prompt"];
-
-  /** Access configuration for the generated task */
-  export type ImageGenerationRequestAccess = {
-    /** Public access token configuration */
-    pat: {
-      /** Generate a public access token for client-side polling */
-      enabled?: boolean;
-    };
-  };
 
   /** Output image format */
   export type ImageGenerationRequestOutputFormat = "png" | "jpg" | "webp";
@@ -199,8 +192,6 @@ export namespace MynthSDKTypes {
     count?: number;
     /** Output format and quality settings */
     output?: ImageGenerationRequestOutput;
-    /** Public access token configuration */
-    access?: ImageGenerationRequestAccess;
     /** Webhook notification settings */
     webhook?: ImageGenerationRequestWebhook;
     /** Content rating classification settings */
@@ -233,9 +224,7 @@ export namespace MynthSDKTypes {
     /** CDN URL of the generated image */
     url: string;
     /** Resolved output image size (for example: "1024x1024") */
-    size?: `${number}x${number}`;
-    /** Provider that generated the image */
-    provider: string;
+    size?: string;
     /** Cost for this image in string format */
     cost: string;
     /** Content rating if classification was enabled */

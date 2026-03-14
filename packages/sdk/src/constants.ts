@@ -11,11 +11,26 @@ export const TASK_STATUS_PATH = (id: string) => `${TASK_PATH}/${id}/status`;
 
 /**
  * Model capabilities that affect available generation options.
- * - `magic_prompt`: Supports automatic prompt enhancement
+ * - `mynth_magic_prompt`: Supports Mynth-side prompt enhancement
+ * - `enhance_prompt`: Supports provider-native prompt enhancement
+ * - `inputs`: Supports reference/input images
+ * - `custom_resolution`: Supports custom width/height requests
  * - `negative_prompt`: Supports negative prompts to exclude elements
+ * - `cfg_scale`: Supports custom CFG scale
+ * - `scheduler`: Supports custom scheduler selection
+ * - `auto_size`: Supports provider-driven auto sizing
  * - `steps`: Supports custom inference step count
  */
-export type ModelCapability = "magic_prompt" | "negative_prompt" | "steps";
+export type ModelCapability =
+  | "steps"
+  | "inputs"
+  | "custom_resolution"
+  | "mynth_magic_prompt"
+  | "enhance_prompt"
+  | "negative_prompt"
+  | "cfg_scale"
+  | "scheduler"
+  | "auto_size";
 
 /**
  * Information about an available image generation model.
@@ -40,49 +55,59 @@ export const AVAILABLE_MODELS: readonly AvailableModel[] = [
     capabilities: [],
   },
   {
+    id: "alibaba/qwen-image-2.0",
+    label: "Qwen Image 2.0",
+    capabilities: ["inputs", "enhance_prompt", "custom_resolution"],
+  },
+  {
+    id: "alibaba/qwen-image-2.0-pro",
+    label: "Qwen Image 2.0 Pro",
+    capabilities: ["inputs", "enhance_prompt", "custom_resolution"],
+  },
+  {
     id: "bytedance/seedream-5.0-lite",
     label: "Seedream 5.0 Lite",
-    capabilities: [],
+    capabilities: ["inputs"],
   },
   {
     id: "black-forest-labs/flux.1-dev",
     label: "FLUX.1 Dev",
-    capabilities: ["magic_prompt", "steps"],
+    capabilities: ["steps", "mynth_magic_prompt"],
   },
   {
     id: "black-forest-labs/flux-1-schnell",
     label: "FLUX.1 Schnell",
-    capabilities: ["magic_prompt"],
+    capabilities: ["steps", "mynth_magic_prompt"],
   },
   {
     id: "tongyi-mai/z-image-turbo",
     label: "Z Image Turbo",
-    capabilities: ["magic_prompt", "steps"],
+    capabilities: ["steps", "mynth_magic_prompt"],
   },
   {
     id: "black-forest-labs/flux.2-dev",
     label: "FLUX.2 Dev",
-    capabilities: ["magic_prompt", "steps"],
+    capabilities: ["mynth_magic_prompt"],
   },
   {
     id: "black-forest-labs/flux.2-klein-4b",
     label: "FLUX.2 Klein 4B",
-    capabilities: [],
+    capabilities: ["inputs"],
   },
   {
     id: "john6666/bismuth-illustrious-mix",
     label: "Bismuth Illustrious Mix",
-    capabilities: ["magic_prompt", "negative_prompt", "steps"],
+    capabilities: ["steps", "negative_prompt", "cfg_scale", "scheduler", "mynth_magic_prompt"],
   },
   {
     id: "google/gemini-3.1-flash-image",
     label: "Nano Banana 2",
-    capabilities: [],
+    capabilities: ["inputs", "enhance_prompt", "auto_size"],
   },
   {
     id: "google/gemini-3-pro-image-preview",
     label: "Nano Banana Pro",
-    capabilities: [],
+    capabilities: ["enhance_prompt"],
   },
   {
     id: "wan/wan2.6-image",
@@ -92,6 +117,6 @@ export const AVAILABLE_MODELS: readonly AvailableModel[] = [
   {
     id: "xai/grok-imagine-image",
     label: "Grok Imagine Image",
-    capabilities: [],
+    capabilities: ["auto_size"],
   },
 ];
